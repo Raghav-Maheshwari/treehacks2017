@@ -1,0 +1,301 @@
+[
+    {
+        "id": "e4f94dc.b8e70b",
+        "type": "exec",
+        "z": "517e932c.8948cc",
+        "command": "vcgencmd",
+        "addpay": true,
+        "append": "measure_temp",
+        "useSpawn": "",
+        "timer": "",
+        "name": "Get unsimulated temp",
+        "x": 333.47632598876953,
+        "y": 401.8095450401306,
+        "wires": [
+            [],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "d8e7a360.75b48",
+        "type": "wiotp out",
+        "z": "517e932c.8948cc",
+        "authType": "d",
+        "qs": "false",
+        "qsDeviceId": "",
+        "deviceKey": "9874e2ca.6fc4c",
+        "deviceType": "",
+        "deviceId": "",
+        "event": "Data from Pi",
+        "format": "json",
+        "name": "",
+        "x": 818.0951652526855,
+        "y": 254.2618761062622,
+        "wires": []
+    },
+    {
+        "id": "30356a5.e576f96",
+        "type": "function",
+        "z": "517e932c.8948cc",
+        "name": "Get data",
+        "func": "var data2 = global.get(\"tempdata2\") || [];\ndata2.push(global.get(\"temperature\"));\ndata2 = data2.reverse().slice(0,1900).reverse();\nvar data = data2.filter(function(a,b) {return (b%5 === 0)})\n\nmsg.headers = {\"Access-Control-Allow-Origin\":\"*\"};\nmsg.payload.temp = global.get(\"temperature\");\n\nmsg.payload.tempdata = JSON.stringify(data);\n\nglobal.set(\"tempdata2\", data2);\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 641.7344970703125,
+        "y": 549.6453247070312,
+        "wires": [
+            [
+                "3b1ae3ec.707a1c"
+            ]
+        ]
+    },
+    {
+        "id": "28862780.343668",
+        "type": "http in",
+        "z": "517e932c.8948cc",
+        "name": "",
+        "url": "/mytemp",
+        "method": "get",
+        "swaggerDoc": "",
+        "x": 447.3179016113281,
+        "y": 548.8120136260986,
+        "wires": [
+            [
+                "30356a5.e576f96"
+            ]
+        ]
+    },
+    {
+        "id": "3b1ae3ec.707a1c",
+        "type": "http response",
+        "z": "517e932c.8948cc",
+        "name": "HTTP",
+        "x": 854.651195526123,
+        "y": 623.7286033630371,
+        "wires": []
+    },
+    {
+        "id": "654aad2b.f8dd54",
+        "type": "function",
+        "z": "517e932c.8948cc",
+        "name": "Set temperature var",
+        "func": "global.set(\"temperature\" , msg.payload.d.temp);\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 756.6749954223633,
+        "y": 181.04999542236328,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "3ff0316a.db8b0e",
+        "type": "delay",
+        "z": "517e932c.8948cc",
+        "name": "delay 10 seconds",
+        "pauseType": "rate",
+        "timeout": "5",
+        "timeoutUnits": "minutes",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "minute",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": true,
+        "x": 945.2237930297852,
+        "y": 419.761962890625,
+        "wires": [
+            [
+                "36b8bc70.c12804",
+                "e96cacaa.ddd4a"
+            ]
+        ]
+    },
+    {
+        "id": "4a81e7b3.8e9098",
+        "type": "twilio out",
+        "z": "517e932c.8948cc",
+        "twilio": "7c11f395.6a8b2c",
+        "twilioType": "sms",
+        "url": "",
+        "number": "2138203149",
+        "name": "Send SMS",
+        "x": 1301.3191032409668,
+        "y": 616.4761810302734,
+        "wires": []
+    },
+    {
+        "id": "b5a948e8.bd6db8",
+        "type": "ibmiot in",
+        "z": "517e932c.8948cc",
+        "authentication": "quickstart",
+        "apiKey": "",
+        "inputType": "evt",
+        "deviceId": "b661c3905d6a",
+        "applicationId": "",
+        "deviceType": "+",
+        "eventType": "+",
+        "commandType": "",
+        "format": "json",
+        "name": "IBM IoT App In",
+        "service": "quickstart",
+        "allDevices": false,
+        "allApplications": false,
+        "allDeviceTypes": true,
+        "allEvents": true,
+        "allCommands": false,
+        "allFormats": false,
+        "x": 286.77144622802734,
+        "y": 303.5714225769043,
+        "wires": [
+            [
+                "2a3ff211.3b392e"
+            ]
+        ]
+    },
+    {
+        "id": "2a3ff211.3b392e",
+        "type": "function",
+        "z": "517e932c.8948cc",
+        "name": "Data from IoT",
+        "func": "return msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 508.9047737121582,
+        "y": 302.5714225769043,
+        "wires": [
+            [
+                "d8e7a360.75b48",
+                "654aad2b.f8dd54",
+                "f62730ce.5a173"
+            ]
+        ]
+    },
+    {
+        "id": "36b8bc70.c12804",
+        "type": "template",
+        "z": "517e932c.8948cc",
+        "name": "Format SMS",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "text",
+        "syntax": "mustache",
+        "template": "Your car is getting dangerously hot!",
+        "x": 1119.0475769042969,
+        "y": 506.3809413909912,
+        "wires": [
+            [
+                "4a81e7b3.8e9098"
+            ]
+        ]
+    },
+    {
+        "id": "f62730ce.5a173",
+        "type": "switch",
+        "z": "517e932c.8948cc",
+        "name": "",
+        "property": "payload.d.temp",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "gte",
+                "v": "40",
+                "vt": "str"
+            },
+            {
+                "t": "gte",
+                "v": "35",
+                "vt": "str"
+            },
+            {
+                "t": "else"
+            }
+        ],
+        "checkall": "false",
+        "outputs": 3,
+        "x": 679.3333396911621,
+        "y": 372.99998474121094,
+        "wires": [
+            [
+                "aa894e62.2fd65"
+            ],
+            [
+                "3ff0316a.db8b0e"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "aa894e62.2fd65",
+        "type": "delay",
+        "z": "517e932c.8948cc",
+        "name": "delay 10 seconds",
+        "pauseType": "rate",
+        "timeout": "1",
+        "timeoutUnits": "minutes",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "minute",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": true,
+        "x": 884.3333282470703,
+        "y": 355.99999618530273,
+        "wires": [
+            [
+                "24f3c52.1c0fa3a"
+            ]
+        ]
+    },
+    {
+        "id": "24f3c52.1c0fa3a",
+        "type": "twilio out",
+        "z": "517e932c.8948cc",
+        "twilio": "5af0dce7.1c3eb4",
+        "twilioType": "call",
+        "url": "http://twimlets.com/echo?Twiml=http%3A%2F%2Ftwimlets.com%2Fecho&",
+        "number": "2138203149",
+        "name": "Call authorities",
+        "x": 1053.6666679382324,
+        "y": 197.33335494995117,
+        "wires": []
+    },
+    {
+        "id": "e96cacaa.ddd4a",
+        "type": "twitter out",
+        "z": "517e932c.8948cc",
+        "twitter": "",
+        "name": "Tweet",
+        "x": 1139.6666297912598,
+        "y": 344.66667079925537,
+        "wires": []
+    },
+    {
+        "id": "9874e2ca.6fc4c",
+        "type": "wiotp-credentials",
+        "z": "",
+        "name": "",
+        "org": "lx1yyx",
+        "devType": "iot-raspberry-pi",
+        "devId": "device1"
+    },
+    {
+        "id": "7c11f395.6a8b2c",
+        "type": "twilio-api",
+        "z": "",
+        "sid": "ACd6c7cc9162343537d4a25e0d10481030",
+        "from": "2134938126",
+        "name": "sms"
+    },
+    {
+        "id": "5af0dce7.1c3eb4",
+        "type": "twilio-api",
+        "z": "",
+        "sid": "ACd6c7cc9162343537d4a25e0d10481030",
+        "from": "2134938126",
+        "name": "phone"
+    }
+]
