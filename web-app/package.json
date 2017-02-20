@@ -22,7 +22,15 @@
     "@angular/router": "^3.4.0",
     "core-js": "^2.4.1",
     "rxjs": "^5.1.0",
-    "zone.js": "^0.7.6"
+    "zone.js": "^0.7.6",
+	"angular": "^1.6.2",
+	"ast-types": "^0.9.5",
+	"base62": "^1.1.2",
+	"commoner": "^0.10.8",
+	"d3":"^4.6.0",
+	"detective":"^4.3.2",
+	"n3-charts":"^2.0.28",
+	"ngtweet":"^0.6.1"
   },
   "devDependencies": {
     "@angular/cli": "1.0.0-beta.32.3",
