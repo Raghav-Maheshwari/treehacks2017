@@ -1,0 +1,42 @@
+<div>
+    <img class="puppy" style="visibility:hidden" src="/puppy1.png"/><h1 class="mytitle">hotDog</h1><img class="puppy" src="/puppy1.png"/>
+		<div class="outer curtemp">
+			<div class="shadow left">
+				<div class="intemp">{{temperature}}°F</div>
+				<div class="smalltext">Inside Vehicle</div>
+			</div>
+			<div class="shadow right" style="background-color:{{safeColor}}">
+				<h1 class="status">Current status:</h1>
+				<h2 class="report">{{safety}}</h2>
+			</div>
+
+		</div>
+		<div class="outer2">
+			<div class="shadow left2 twitter">
+				<span class="twitter-header">Twitter Updates</span>
+				<iframe class="twitter-inner" src="/twitter.html"></iframe>
+			</div>
+			<div class="shadow right2">
+				<div class="shadow mycontainer">
+					<div class="mybox" ng-repeat="temp in weather">
+						<div>{{temp[0]}}°F</div>
+						<div class="time">{{temp[1]}}</div>
+					</div>
+					<div class="city">Hourly weather in {{city}}</div>
+				</div>
+				
+				<div class="shadow graphcontainer">
+					<div class="graphtitle">Temperature over Time</div>
+					<div class="graph">{{graph}}
+						<div class="chart" ng-controller="ExampleController">
+						  <linechart data="data" options="options"></linechart>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+	</div>
+	
+</div>
