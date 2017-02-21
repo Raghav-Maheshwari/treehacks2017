@@ -1,75 +1,75 @@
 'use strict';
 
 /**
- * Defined a controller named 'ExampleController' that works with the view template
- * exampleTemplate.html.  We assume that cs142App has already been defined by
- * the main.js controller.  To access this view need to include the controller:
- *
- *  <script src="components/example/exampleController.js"></script>
- *
- * and its view template:
- *   <div ng-include="'components/example/exampleTemplate.html'" ng-controller="ExampleController"></div>
+ * Primary controller for the component, used mostly to interact with the API's
  */
 
-cs142App.controller('ExampleController', ['$scope','$http', function($scope,$http) {
+hotDogApp.controller('ExampleController', ['$scope','$http', function($scope,$http) {
 
-   // $scope.main is defined if we are a child $scope of the main $scope in which
-   // case it contains the page's title property.  We update it so the page title
-   // will include this view's name "Example".
-   if ($scope.main) {
-      $scope.main.title = 'Pets';
-   }
-
+   // $scope is the scope, $http deals with http functions
   $scope.graph = "";
   $scope.location = 'Stanford, California';
   
-  var toF = function(f) {return f*9/5+32} 
+  var piAddress = "10.19.190.14"; // Location of raspberry pi on network 
+  // Helper converts C to F
+  var toF = function(c) {return c*9/5+32} 
+  // Helper rounds to tens place
   var toTen = function(n) {return Math.round(10*n)/10}
-	
+
+
+  // Helper to classify temperature safety
   $scope.checkSafety = function(temp) {
     var t = parseFloat(temp);
     if (t > 100) return 0;
     if (t > 80) return 1;
     return 2;
   }
-
+   
+  // GETs hourly data from openweathermap
   var req1 = {
   	method: 'GET',
   	url: 'http://api.openweathermap.org/data/2.5/forecast?id=5398563&APPID=b90598af57d9d98af74bedc7b08dc494',
   }
 	
 	$http(req1).then(function(msg){
-    console.log(msg);
-		$scope.weather = msg.data.list.map(function(a){
-      var newDate = (new Date(1000 * a.dt)).getHours();
-      var newHour = (((newDate - 1) % 12) + 1);
-      newHour = "" + newHour + ((newHour == newDate) ? " AM" : " PM");
-      return [toTen(toF(a.main.temp_max - 273))|| "?", newHour]}).slice(0,5);
+
+    // Sets variables based on OWM output, 
+	$scope.weather = msg.data.list.map(function(a){ // Creates an array from every element
+      var newDate = (new Date(1000 * a.dt)).getHours(); // Intermediate date variable
+      var newHour = (((newDate - 1) % 12) + 1); // Converts date to hour
+      newHour = "" + newHour + ((newHour == newDate) ? " AM" : " PM"); // Appends AM/PM
+      return [toTen(toF(a.main.temp_max - 273))|| "?", newHour]}).slice(0,5); // Keeps only so many
 		$scope.city = msg.data.city.name || "?";
 	});
 
+    // Gets temperature data from raspberry pi generated local server page
     var req2 = {
 		method: 'GET',
-		url: 'http://10.19.190.14:1880/mytemp',
+		url: 'http://'+piAddress+':1880/mytemp',
 	}
 	
-	$http(req2).then(function(msg){
+  // Set initial variable values
+  $http(req2).then(function(msg){
     $scope.temperature = (toTen(toF(msg.data.temp)) || "?");
     $scope.tempset = JSON.parse(msg.data.tempdata) || [];
   });
+
+    // Every second, check again
 	setInterval(
 	function(){
-		$http(req2).then(function(msg){
+		$http(req2).then(function(msg){ // Ping the 
       $scope.temperature = toTen(toF(msg.data.temp)) || $scope.temperature;
-      var safetyTypes = ["Dangerous", "Uncomfortable", "Safe"];
-      var safetyColor = ["red", "#B63100", "#00897B"]
-      var safeNum = $scope.checkSafety($scope.temperature);
+      var safetyTypes = ["Dangerous", "Uncomfortable", "Safe"]; // Temperature classes
+      var safetyColor = ["red", "#B63100", "#00897B"] // Temperature color classes
+      var safeNum = $scope.checkSafety($scope.temperature); 
       $scope.safety = safetyTypes[safeNum];
       $scope.safeColor = safetyColor[safeNum]
-      $scope.tempset = JSON.parse(msg.data.tempdata) || $scope.tempset;
+      // If there's a new temp, updates
+      $scope.tempset = JSON.parse(msg.data.tempdata) || $scope.tempset; 
 
       $scope.data = {
         dataset0: $scope.tempset.map(function(temper, index) { 
+          //Creates dataset from temperatures
           return {"x": index, "val_0": toF(parseFloat(temper))};
         })
       };
