@@ -91,6 +91,4 @@ public class HeatGraphsActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    // todo: can have message that displays threat level based on temp
-    // straight horizontal line on graph that shows carTemp
 }
