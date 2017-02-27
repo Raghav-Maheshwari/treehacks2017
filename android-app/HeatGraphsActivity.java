@@ -76,7 +76,6 @@ public class HeatGraphsActivity extends AppCompatActivity {
      */
     public double logRegression(double timeElapsed) {
         return 10.6234*Math.log(logFactor()*timeElapsed);
-        //return 10.6234*Math.log(timeElapsed); // I KNOW WHY it's crashing; log 0 gives garbage value
     }
 
     /* Getting the logarithmic multiplication factors from an exponential function; they kept increasing at an increasing rate as the starting temperature increased,
